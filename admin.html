@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ShelVey • Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f172a;--card:#1e293b;--txt:#f1f5f9;--accent:#20b2aa}
+body{margin:0;font-family:'Inter',sans-serif;background:var(--bg);color:var(--txt)}
+.wrap{max-width:900px;margin:5vh auto;padding:2rem}
+.card{background:var(--card);padding:2rem;border-radius:16px;margin-bottom:2rem}
+h1,h2{margin:0 0 1rem}
+table{width:100%;border-collapse:collapse;margin-top:1rem}
+th,td{padding:.6rem;border-bottom:1px solid #334155;font-size:.9rem}
+td:nth-child(2){word-break:break-all}
+.counts{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem}
+.countbox{background:#334155;padding:1rem;border-radius:12px;text-align:center}
+input[type=password]{padding:.8rem;border-radius:8px;border:none;width:250px;margin-right:.5rem}
+button{padding:.8rem 1.4rem;border:none;border-radius:8px;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap" id="gate">
+  <h1>Admin Login</h1>
+  <input type="password" id="pw" placeholder="Password"><button onclick="login()">Enter</button>
+</div>
+
+<div class="wrap" id="panel" style="display:none">
+  <h1>ShelVey Wait-list Dashboard</h1>
+
+  <div class="card">
+    <h2>Plan Counters</h2>
+    <div class="counts" id="countBoxes"></div>
+  </div>
+
+  <div class="card">
+    <h2>Leads</h2>
+    <table>
+      <thead><tr><th>Date</th><th>Email</th><th>Plan</th></tr></thead>
+      <tbody id="leadRows"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const PASS='admin'; /* change or wire to real auth */
+
+/* -------- login ---------- */
+function login(){
+  if(document.getElementById('pw').value===PASS){
+    document.getElementById('gate').style.display='none';
+    document.getElementById('panel').style.display='block';
+    loadData();
+  }else alert('Wrong password');
+}
+
+/* -------- load counters & leads ---------- */
+function loadData(){
+  const counts=JSON.parse(localStorage.getItem('shelveyCounts')||'{}');
+  const boxes=document.getElementById('countBoxes');
+  boxes.innerHTML='';
+  Object.entries(counts).forEach(([tier,num])=>{
+    boxes.insertAdjacentHTML('beforeend',`
+      <div class="countbox"><h3>${tier.charAt(0).toUpperCase()+tier.slice(1)}</h3><p style="font-size:2rem">${num}</p></div>`);
+  });
+  const leads=JSON.parse(localStorage.getItem('shelveyLeads')||'[]');
+  const tbody=document.getElementById('leadRows');
+  tbody.innerHTML='';
+  leads.reverse().forEach(l=>{
+    tbody.insertAdjacentHTML('beforeend',`<tr><td>${new Date(l.date).toLocaleString()}</td><td>${l.email}</td><td>${l.plan}</td></tr>`);
+  });
+}
+</script>
+</body>
+</html>
